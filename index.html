@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Nossa Paraninfa, Prof. Silvia | SSI IFRS POA</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        script: ['Dancing Script', 'cursive'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        silvia: {
+                            light: '#fff1f2',
+                            rose: '#be123c', 
+                            gold: '#d97706',
+                            dark: '#881337',
+                        },
+                        java: {
+                            orange: '#e76f00',
+                            blue: '#5382a1',
+                        }
+                    },
+                    animation: {
+                        'slide-up': 'slideUp 1s ease-out forwards',
+                        'pulse-slow': 'pulse 4s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'typing': 'blink 1s step-end infinite',
+                        'steam': 'steam 2s ease-out infinite',
+                    },
+                    keyframes: {
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        blink: {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0' },
+                        },
+                        steam: {
+                            '0%': { transform: 'translateY(0) scale(1)', opacity: '0.8' },
+                            '100%': { transform: 'translateY(-20px) scale(1.5)', opacity: '0' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { overflow-x: hidden; }
+        
+        /* O Canvas fica acima de tudo quando ativo */
+        #fireworks-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #be123c, #e76f00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Estilo da IDE na página */
+        .ide-window {
+            background: #2b2b2b;
+            border-radius: 8px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            overflow: hidden;
+            font-family: 'JetBrains Mono', monospace;
+            border: 1px solid #444;
+        }
+        .ide-header {
+            background: #3c3f41;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #111;
+        }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        
+        /* Syntax Highlight */
+        .keyword { color: #cc7832; font-weight: bold; }
+        .string { color: #6a8759; }
+        .method { color: #ffc66d; }
+        .class-name { color: #a9b7c6; }
+        .comment { color: #808080; font-style: italic; }
+        .annotation { color: #bbb529; }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .photo-frame { position: relative; }
+
+        /* --- MODAL EMOÇÃO --- */
+        #emotional-modal {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        #emotional-modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        /* Cursor piscante do terminal */
+        .cursor::after {
+            content: '▋';
+            animation: blink 1s step-end infinite;
+            color: #e76f00;
+            margin-left: 2px;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased relative">
+
+    <canvas id="fireworks-canvas"></canvas>
+
+    <!-- ====== MODAL DE "COMPILAÇÃO DO AFETO" (O GRANDE FINAL) ====== -->
+    <div id="emotional-modal" class="fixed inset-0 z-[5000] bg-slate-900/95 flex flex-col items-center justify-center px-4 backdrop-blur-sm">
+        <div class="max-w-2xl w-full">
+            
+            <!-- Terminal Window -->
+            <div class="bg-[#1e1e1e] rounded-lg shadow-2xl border border-gray-700 font-mono text-sm md:text-base overflow-hidden">
+                <!-- Header -->
+                <div class="bg-[#2d2d2d] px-4 py-2 flex items-center gap-2 border-b border-gray-700">
+                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span class="ml-2 text-gray-400 text-xs">terminal — compiling_love.sh</span>
+                </div>
+                
+                <!-- Body -->
+                <div class="p-6 h-[400px] overflow-y-auto text-gray-300 flex flex-col" id="terminal-body">
+                    <div id="terminal-content"></div>
+                    <span class="cursor"></span>
+                </div>
+            </div>
+
+            <!-- Botão de Fechar (Aparece no fim) -->
+            <button id="close-modal" class="mt-8 mx-auto hidden bg-white/10 hover:bg-white/20 text-white px-6 py-2 rounded-full border border-white/30 transition-all text-sm font-sans">
+                Fechar Terminal ❤️
+            </button>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 top-0 transition-all duration-300 glass-panel">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-br from-orange-500 to-red-600 text-white p-1.5 rounded-lg shadow-sm">
+                    <i data-lucide="coffee" class="w-5 h-5"></i>
+                </div>
+                <span class="font-serif font-bold text-lg text-slate-800 tracking-wide">SSI <span class="text-silvia-gold">IFRS POA</span></span>
+            </div>
+            <div class="text-[10px] md:text-xs font-mono text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 uppercase tracking-widest">
+                Paraninfa
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="min-h-screen flex flex-col items-center justify-center text-center px-4 relative pt-20 overflow-hidden">
+        <!-- Background Elements -->
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
+            <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-rose-100/40 rounded-full blur-[100px] animate-pulse-slow"></div>
+            <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-100/40 rounded-full blur-[100px] animate-pulse-slow" style="animation-delay: 2s"></div>
+        </div>
+
+        <div class="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
+            
+            <!-- ====== FOTO FRAME ====== -->
+            <div class="mb-10 relative animate-slide-up photo-frame group cursor-default">
+                
+                <!-- 1. Annotation -->
+                <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-[#2b2b2b] text-[#cc7832] text-xs font-mono py-1.5 px-3 rounded border border-gray-600 shadow-xl z-30 transition-all duration-300 group-hover:-translate-y-2">
+                    <span class="annotation">@Override</span> <br>
+                    <span class="keyword">public</span> <span class="class-name">Amor</span> <span class="method">ensinar</span>()
+                </div>
+
+                <!-- 2. Círculo Central -->
+                <div class="w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-[6px] border-white shadow-2xl relative z-10 bg-gradient-to-b from-slate-50 to-slate-100 flex items-center justify-center group-hover:shadow-orange-500/30 transition-all duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-orange-100/0 via-orange-100/0 to-orange-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    <div class="relative">
+                        <div class="absolute -top-8 left-1/2 -translate-x-1/2 w-8 h-8 opacity-0 group-hover:animate-steam text-orange-400">
+                            <i data-lucide="waves" class="w-full h-full"></i>
+                        </div>
+                        <i data-lucide="coffee" class="w-24 h-24 md:w-28 md:h-28 text-[#e76f00] stroke-[1.5] drop-shadow-sm transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 ease-out"></i>
+                    </div>
+                </div>
+
+                <!-- 3. Badge -->
+                <div class="absolute -bottom-2 right-0 md:bottom-0 md:right-2 z-20 bg-gradient-to-r from-[#e76f00] to-[#be123c] text-white text-xs md:text-sm font-bold px-4 py-1.5 rounded-full shadow-lg flex items-center gap-2 hover:scale-105 transition-transform border-2 border-white group-hover:animate-pulse">
+                    <i data-lucide="heart" class="w-4 h-4 fill-white"></i>
+                    <span>Paraninfa Eterna</span>
+                </div>
+            </div>
+
+            <span class="block font-script text-3xl md:text-5xl text-silvia-gold mb-4 animate-slide-up" style="animation-delay: 0.2s">Obrigado por acreditar em nós</span>
+            
+            <h1 class="font-serif text-5xl md:text-7xl font-bold text-slate-900 mb-6 leading-tight animate-slide-up" style="animation-delay: 0.3s">
+                Professora <span class="gradient-text">Silvia</span>
+            </h1>
+
+            <div class="h-8 md:h-10 mb-8 font-mono text-slate-600 text-sm md:text-lg animate-slide-up flex items-center justify-center gap-2" style="animation-delay: 0.4s">
+                <span class="keyword">return</span> <span class="string">"</span><span id="typing-text" class="text-silvia-rose font-semibold"></span><span class="string">"</span>;<span class="animate-typing border-r-2 border-slate-400 h-5 md:h-6 ml-1"></span>
+            </div>
+            
+            <p class="text-lg md:text-2xl text-slate-600 font-light max-w-2xl mx-auto leading-relaxed animate-slide-up px-4 italic" style="animation-delay: 0.5s">
+                "Você não compilou apenas nossos códigos.<br>
+                Você compilou nossos <strong class="text-silvia-rose font-medium">sonhos</strong> e debugou nossos <strong class="text-silvia-gold font-medium">medos</strong>."
+            </p>
+
+            <!-- BOTÃO GRANDE FINAL (ACIONA A MÁGICA) -->
+            <button onclick="startEmotionalSequence()" class="mt-12 group relative px-10 py-4 bg-gradient-to-r from-silvia-rose to-orange-600 text-white rounded-full font-medium shadow-xl hover:shadow-rose-500/40 hover:-translate-y-1 transition-all duration-300 animate-slide-up overflow-hidden cursor-pointer z-40" style="animation-delay: 0.7s">
+                <div class="absolute inset-0 bg-white/20 group-hover:translate-x-full transition-transform duration-700 ease-out -translate-x-full transform skew-x-12"></div>
+                <span class="relative z-10 flex items-center gap-3 text-lg">
+                    Compilar Homenagem <i data-lucide="play" class="w-5 h-5 fill-current"></i>
+                </span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Conteúdo do Site (Timeline, Texto, etc) -->
+    <section class="py-24 px-4 bg-white">
+        <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+            <div class="order-2 md:order-1 reveal">
+                <div class="flex items-center gap-2 mb-6">
+                    <i data-lucide="code-2" class="text-silvia-rose w-6 h-6"></i>
+                    <span class="text-sm font-bold text-silvia-rose tracking-wider uppercase">Lógica do Coração</span>
+                </div>
+                <h2 class="font-serif text-3xl md:text-5xl font-bold text-slate-800 mb-8 leading-tight">
+                    Sua classe estende <br> <span class="text-silvia-gold">Humanidade</span>
+                </h2>
+                <div class="prose text-slate-600 text-lg leading-relaxed space-y-6 text-justify font-light">
+                    <p>
+                        Professora, ensinar Java qualquer manual ensina. Mas ensinar a ter resiliência quando o código quebra, paciência quando a lógica falha e ética profissional... isso só uma <strong>mestra</strong> faz.
+                    </p>
+                    <p>
+                        Você transformou a sala de aula em um ambiente seguro (try-catch block) onde errar não era uma falha fatal, mas uma etapa da compilação do nosso conhecimento.
+                    </p>
+                </div>
+            </div>
+            <!-- IDE Visual -->
+            <div class="order-1 md:order-2 reveal transform hover:scale-[1.02] transition-transform duration-700">
+                <div class="ide-window text-xs md:text-sm shadow-2xl border-t-4 border-silvia-gold">
+                    <div class="ide-header justify-between">
+                        <div class="flex gap-2"><div class="dot bg-red-500"></div><div class="dot bg-yellow-500"></div><div class="dot bg-green-500"></div></div>
+                        <span class="text-xs text-gray-500 font-sans">Legado.java</span>
+                    </div>
+                    <div class="p-6 md:p-8 text-gray-300 overflow-x-auto leading-relaxed">
+                        <div class="mb-4"><span class="keyword">public class</span> <span class="class-name">Silvia</span> <span class="keyword">implements</span> <span class="class-name">Inspiracao</span> {</div>
+                        <div class="pl-4 mb-2"><span class="annotation">@Override</span></div>
+                        <div class="pl-4 mb-4">
+                            <span class="keyword">public void</span> <span class="method">transformarVida</span>(<span class="class-name">Aluno</span> aluno) {
+                                <span class="keyword">try</span> {
+                                    <span class="comment">// Acolhendo as dúvidas</span>
+                                    <span class="keyword">this</span>.ensinarComPaciencia();
+                                    aluno.voarAlto();
+                                } <span class="keyword">catch</span> (<span class="class-name">MedoException</span> e) {
+                                    <span class="class-name">System</span>.out.println(<span class="string">"Estou aqui com você."</span>);
+                                    <span class="keyword">this</span>.darApoioMoral();
+                                }
+                            }
+                        </div>
+                        <div class="pl-4"><span class="keyword">return</span> <span class="string">"Gratidão Eterna ❤️"</span>;</div>
+                        <div>}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <section class="py-24 bg-[#1a1a1a] text-white relative overflow-hidden">
+        <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
+            <i data-lucide="heart" class="w-16 h-16 text-silvia-rose fill-current mx-auto mb-6"></i>
+            <h2 class="font-serif text-4xl md:text-6xl mb-6">Amamos você, Silvia!</h2>
+            <div class="flex justify-center gap-8 text-sm font-mono text-gray-500">
+                <span class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4"></i> IFRS Campus Porto Alegre</span>
+                <span class="flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4"></i> Turma SSI</span>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        lucide.createIcons();
+        
+        // Typing Effect do Topo
+        const words = ["Inspiração","Amiga", "Paraninfa"];
+        let i = 0;
+        function typeWriter() {
+            const element = document.getElementById("typing-text");
+            if(!element) return;
+            const word = words[i];
+            let c = 0;
+            element.innerHTML = "";
+            const typing = setInterval(() => {
+                element.innerHTML += word.charAt(c);
+                c++;
+                if (c >= word.length) {
+                    clearInterval(typing);
+                    setTimeout(erase, 2000);
+                }
+            }, 100);
+        }
+        function erase() {
+            const element = document.getElementById("typing-text");
+            if(!element) return;
+            const word = words[i];
+            let c = word.length;
+            const erasing = setInterval(() => {
+                element.innerHTML = word.substring(0, c);
+                c--;
+                if (c < 0) {
+                    clearInterval(erasing);
+                    i = (i + 1) % words.length;
+                    setTimeout(typeWriter, 500);
+                }
+            }, 50);
+        }
+        setTimeout(typeWriter, 1000);
+
+        // Scroll Reveal
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // ==========================================
+        //  ENGINE DE EMOÇÃO: "A COMPILAÇÃO"
+        // ==========================================
+        
+        const modal = document.getElementById('emotional-modal');
+        const termContent = document.getElementById('terminal-content');
+        const closeModal = document.getElementById('close-modal');
+        
+        // Logs que serão exibidos
+        const logs = [
+            { text: "javac Homenagem.java", delay: 500, color: "text-white" },
+            { text: "Compilando memórias da Turma SSI...", delay: 1000, color: "text-gray-400" },
+            { text: "> Importando paciência nas aulas de Java... [OK]", delay: 1800, color: "text-green-400" },
+            { text: "> Carregando sorrisos no corredor... [OK]", delay: 2600, color: "text-green-400" },
+            { text: "> Resolvendo bugs de insegurança... [DONE]", delay: 3400, color: "text-blue-400" },
+            { text: "> Analisando impacto na vida dos alunos...", delay: 4200, color: "text-yellow-400" },
+            { text: "WARNING: Nível de saudade excederá o limite de memória.", delay: 5500, color: "text-red-400" },
+            { text: "Calculando gratidão...", delay: 6500, color: "text-gray-400" },
+            { text: "--------------------------------------------------", delay: 7000, color: "text-gray-500" },
+            { text: "BUILD SUCCESSFUL", delay: 7500, color: "text-green-500 font-bold text-xl" },
+            { text: "Executando mensagem final...", delay: 8500, color: "text-white" }
+        ];
+
+        // Mensagem final datilografada
+        const finalMessage = "\n\nQuerida Professora Silvia,\n\n" +
+        "Muitos nos ensinaram a escrever linhas de código, mas só você nos ensinou a compilar sonhos.\n\n" +
+        "Nos momentos em que nossa lógica falhava e o desânimo aparecia, você foi nosso 'try-catch' seguro: acolheu nossas exceções, tratou nossos medos e nos fez rodar novamente.\n\n" +
+        "Levamos de você a herança mais valiosa: a certeza de que a tecnologia só tem sentido quando tocada pela humanidade.\n\n" +
+        "Sua presença em nossa história não é uma variável passageira...\n" +
+        "É uma constante 'public static final' gravada para sempre em nossos corações.\n\n" +
+        "Com amor e eterna gratidão,\n" +
+        "Sua Turma.";
+        function startEmotionalSequence() {
+            // 1. Prepara o palco
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            modal.classList.add('active');
+            termContent.innerHTML = "";
+            
+            // 2. Executa a sequência de logs do terminal
+            logs.forEach((log, index) => {
+                setTimeout(() => {
+                    const p = document.createElement('div');
+                    p.className = `mb-1 ${log.color}`;
+                    p.innerText = log.text;
+                    termContent.appendChild(p);
+                    
+                    // Auto scroll
+                    const body = document.getElementById('terminal-body');
+                    body.scrollTop = body.scrollHeight;
+
+                    // Gatilho dos fogos no "BUILD SUCCESS"
+                    if (log.text.includes("BUILD SUCCESS")) {
+                        launchFireworksSequence();
+                    }
+                    
+                    // Iniciar a carta final
+                    if (index === logs.length - 1) {
+                        setTimeout(typeFinalMessage, 1000);
+                    }
+
+                }, log.delay);
+            });
+        }
+
+        function typeFinalMessage() {
+            let charIndex = 0;
+            const msgElement = document.createElement('div');
+            msgElement.className = "text-orange-400 mt-4 font-bold whitespace-pre-wrap leading-relaxed";
+            termContent.appendChild(msgElement);
+
+            const typingInterval = setInterval(() => {
+                msgElement.textContent += finalMessage.charAt(charIndex);
+                charIndex++;
+                
+                // Auto scroll durante digitação
+                const body = document.getElementById('terminal-body');
+                body.scrollTop = body.scrollHeight;
+
+                if (charIndex >= finalMessage.length) {
+                    clearInterval(typingInterval);
+                    closeModal.classList.remove('hidden'); // Mostra botão fechar
+                    createFirework(window.innerWidth/2, window.innerHeight/2); // Fogo final
+                }
+            }, 50); // Velocidade da digitação
+        }
+
+        closeModal.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+
+
+        // --- ENGINE DE FOGOS ---
+        const canvas = document.getElementById('fireworks-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 3 + 1;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.alpha = 1;
+                this.friction = 0.98;
+                this.gravity = 0.03;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+            update() {
+                this.vx *= this.friction;
+                this.vy *= this.friction;
+                this.vy += this.gravity;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.alpha -= 0.01;
+            }
+        }
+
+        function createFirework(x, y) {
+            const colors = ['#be123c', '#d97706', '#fbbf24', '#ffffff', '#fda4af'];
+            for (let i = 0; i < 80; i++) {
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                particles.push(new Particle(x, y, color));
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, i) => {
+                p.update();
+                p.draw();
+                if (p.alpha <= 0) particles.splice(i, 1);
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        function launchFireworksSequence() {
+            let count = 0;
+            const interval = setInterval(() => {
+                const x = Math.random() * (innerWidth * 0.8) + (innerWidth * 0.1);
+                const y = Math.random() * (innerHeight * 0.5);
+                createFirework(x, y);
+                count++;
+                if(count > 15) clearInterval(interval);
+            }, 500);
+        }
+    </script>
+</body>
+</html>
